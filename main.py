@@ -1,13 +1,15 @@
 import sys 
 import os
+import string
 
 from PySide6 import QtWidgets
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import QApplication, QMessageBox, QMainWindow
 from PySide6.QtCore import QFile
- 
-from ui.main import Ui_mainWindow
 
-from docx import Document
+from docx import Document as Word
+from openpyxl import load_workbook as Excel
+
+from ui.main import Ui_mainWindow
 
 # 遍历文件夹
 def scan_path(path_name,file_list):
@@ -22,13 +24,13 @@ def scan_path(path_name,file_list):
 
         ext = os.path.splitext(item.path)[-1]
 
-        if (ext == '.docx' and item.name.startswith('.') == False):
+        if (item.name.startswith('.') == False):
           file_list.append(item.path)
 
-#替换文件里的文字
+#替换word里的文字
 def replace_word(file, old_word, new_word):
 
-  doc = Document(file)
+  doc = Word(file)
 
   # 执行替换函数
   for p in doc.paragraphs:  # 遍历文档段落
@@ -48,7 +50,6 @@ def replace_word(file, old_word, new_word):
   # 替换页眉
   for p in doc.sections[0].header.paragraphs:
     for run in p.runs:
-      print(run.text)
       if old_word in run.text:
         run.text = run.text.replace(old_word, new_word)
 
@@ -60,6 +61,32 @@ def replace_word(file, old_word, new_word):
 
   doc.save(file)
 
+#替换excel里的文字
+def replace_excel(file, old_word, new_word):
+
+  xls = Excel(file)
+  sheets = xls.get_sheet_names()
+
+  for i in range(len(sheets)):
+
+    sheet = xls.get_sheet_by_name(sheets[i])
+
+    for col in sheet.iter_cols():
+      for cell in col:
+        if isinstance(cell.value, str):
+          cell.value = cell.value.replace(old_word, new_word)
+
+  xls.save(file)
+
+#替换文件名
+def rename_file(old_file_name, old_word, new_word):
+
+  new_file_name = old_file_name.replace(old_word, new_word)
+  os.rename(old_file_name,new_file_name)
+
+  return new_file_name
+
+# 主界面显示
 class MainWindow (QMainWindow):
   
   def __init__(self):
@@ -72,12 +99,40 @@ class MainWindow (QMainWindow):
  
   def _banding(self):
     self.ui.choosePath.clicked.connect(self.choosePath)
+    self.ui.list.clicked.connect(self.list)
     self.ui.start.clicked.connect(self.start)
 
+  # 选择目录
   def choosePath(self):
     path_name = QtWidgets.QFileDialog.getExistingDirectory(self, "选择文件夹","../")
     self.ui.pathName.setText(path_name)
-    
+
+  # 列出文件
+  def list(self):
+    path_name = self.ui.pathName.text()
+
+    if path_name == '':
+
+      log_html = '请选择目录'
+      self.ui.showLog.setHtml(log_html)
+
+    else:
+
+      file_list = []
+      scan_path(path_name,file_list)
+
+      log_html = '开始搜索 <br><br>'
+      self.ui.showLog.setHtml(log_html)
+
+      for file in file_list:
+
+        log_html = log_html + file.replace(path_name,'') + '<br>'
+        self.ui.showLog.setHtml(log_html)
+
+      log_html = log_html + '<br>搜索完成' + '<br>共找到 ' + str(len(file_list)) + ' 个文件'
+      self.ui.showLog.setHtml(log_html)
+  
+  # 开始替换
   def start(self):
 
     self.ui.start.setText('执行中....')
@@ -85,38 +140,49 @@ class MainWindow (QMainWindow):
 
     path_name = self.ui.pathName.text()
 
-    old_name = self.ui.oldName.text()
-    new_name = self.ui.newName.text()
-
     old_word = self.ui.oldWord.text()
     new_word = self.ui.newWord.text()
 
+    is_rename = self.ui.isRename.isChecked()
+
     if path_name == '':
 
-      log_html = '请选择文件夹'
+      log_html = '请选择目录'
       self.ui.showLog.setHtml(log_html)
 
     else:
 
-      log_html = '开始执行 <br>' + path_name + '<br>'
-      self.ui.showLog.setHtml(log_html)
+      result = QMessageBox.question(self, "警告", "确定要开始执行?", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
 
-      file_list = []
-      scan_path(path_name,file_list)
+      if result == QMessageBox.Yes:
 
-      for file in file_list:
+        file_list = []
+        scan_path(path_name,file_list)
 
-        log_html = log_html + file + '<br>'
+        log_html = '开始执行 <br><br>'
         self.ui.showLog.setHtml(log_html)
 
-        replace_word(file,old_word,new_word)
+        for file in file_list:
 
-    log_html = log_html + '执行完成'
-    self.ui.showLog.setHtml(log_html)
+          if os.path.splitext(file)[-1] == '.docx':
+           replace_word(file,old_word,new_word)
+          elif os.path.splitext(file)[-1] == '.xlsx':
+           replace_excel(file,old_word,new_word)
 
-    self.ui.start.setText('开始')
+          #替换文件名
+          if is_rename is True:
+            file = rename_file(file,old_word,new_word)
+
+          log_html = log_html + file.replace(path_name,'') + '<br>'
+          self.ui.showLog.setHtml(log_html)
+
+        log_html = log_html + '<br>执行完成<br>共替换 ' + str(len(file_list)) + ' 个文件'
+        self.ui.showLog.setHtml(log_html)
+
+    self.ui.start.setText('开始替换')
     self.ui.start.setEnabled(True)
 
+# 执行
 if __name__ == "__main__":
   app = QtWidgets.QApplication(sys.argv)
  
@@ -124,3 +190,4 @@ if __name__ == "__main__":
   window.show()
 
   sys.exit(app.exec())
+
