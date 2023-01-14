@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>createFile</class>
- <widget class="QMainWindow" name="createFile">
+ <class>mainWindow</class>
+ <widget class="QMainWindow" name="mainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -17,21 +17,21 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>30</x>
+      <x>40</x>
       <y>50</y>
       <width>81</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>选择模版目录</string>
+     <string>选择目录</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>100</y>
+      <x>40</x>
+      <y>160</y>
       <width>58</width>
       <height>16</height>
      </rect>
@@ -44,8 +44,8 @@
     <property name="geometry">
      <rect>
       <x>150</x>
-      <y>100</y>
-      <width>113</width>
+      <y>160</y>
+      <width>151</width>
       <height>21</height>
      </rect>
     </property>
@@ -54,8 +54,8 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>100</y>
-      <width>113</width>
+      <y>160</y>
+      <width>131</width>
       <height>21</height>
      </rect>
     </property>
@@ -63,8 +63,8 @@
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>100</y>
+      <x>330</x>
+      <y>160</y>
       <width>58</width>
       <height>16</height>
      </rect>
@@ -73,7 +73,7 @@
      <string>替换为</string>
     </property>
    </widget>
-   <widget class="QToolButton" name="chooseTemplateFolder">
+   <widget class="QToolButton" name="chooseFolder">
     <property name="geometry">
      <rect>
       <x>520</x>
@@ -86,7 +86,7 @@
      <string>...</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="templateFolder">
+   <widget class="QLineEdit" name="folderName">
     <property name="geometry">
      <rect>
       <x>150</x>
@@ -99,7 +99,7 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="create">
+   <widget class="QPushButton" name="start">
     <property name="geometry">
      <rect>
       <x>300</x>
@@ -109,46 +109,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>开始生成</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>150</y>
-      <width>81</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>选择生成目录</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="targetFolder">
-    <property name="geometry">
-     <rect>
-      <x>150</x>
-      <y>150</y>
-      <width>351</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="readOnly">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QToolButton" name="chooseTargetFolder">
-    <property name="geometry">
-     <rect>
-      <x>520</x>
-      <y>150</y>
-      <width>31</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>...</string>
+     <string>开始</string>
     </property>
    </widget>
    <widget class="QTextBrowser" name="showLog">
@@ -159,6 +120,52 @@
       <width>741</width>
       <height>271</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="newName">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>110</y>
+      <width>131</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>110</y>
+      <width>58</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>替换为</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="oldName">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>110</y>
+      <width>151</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>110</y>
+      <width>71</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>查找文件名</string>
     </property>
    </widget>
   </widget>
