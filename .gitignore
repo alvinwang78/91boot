@@ -5,3 +5,4 @@ doc/*
 .DS_Store
 ui/.DS_Store
 ui/__pycache__
+.DS_Store
