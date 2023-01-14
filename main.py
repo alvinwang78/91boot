@@ -65,11 +65,11 @@ def replace_word(file, old_word, new_word):
 def replace_excel(file, old_word, new_word):
 
   xls = Excel(file)
-  sheets = xls.get_sheet_names()
+  sheets = xls.sheetnames
 
   for i in range(len(sheets)):
 
-    sheet = xls.get_sheet_by_name(sheets[i])
+    sheet = xls[sheets[i]]
 
     for col in sheet.iter_cols():
       for cell in col:
