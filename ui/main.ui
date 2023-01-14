@@ -73,7 +73,7 @@
      <string>替换为</string>
     </property>
    </widget>
-   <widget class="QToolButton" name="chooseFolder">
+   <widget class="QToolButton" name="choosePath">
     <property name="geometry">
      <rect>
       <x>520</x>
@@ -86,7 +86,7 @@
      <string>...</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="folderName">
+   <widget class="QLineEdit" name="pathName">
     <property name="geometry">
      <rect>
       <x>150</x>

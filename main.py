@@ -9,7 +9,56 @@ from ui.main import Ui_mainWindow
 
 from docx import Document
 
+# 遍历文件夹
+def scan_path(path_name,file_list):
 
+  for item in os.scandir(path_name):
+
+      if item.is_dir():
+
+        scan_path(item.path,file_list)
+
+      elif item.is_file():
+
+        ext = os.path.splitext(item.path)[-1]
+
+        if (ext == '.docx' and item.name.startswith('.') == False):
+          file_list.append(item.path)
+
+#替换文件里的文字
+def replace_word(file, old_word, new_word):
+
+  doc = Document(file)
+
+  # 执行替换函数
+  for p in doc.paragraphs:  # 遍历文档段落
+    for run in p.runs:  # 遍历段落的字块
+      if old_word in run.text:
+        run.text = run.text.replace(old_word, new_word)
+
+  # 遍历文档的表格， 替换表格里的要替换的文字
+  for table in doc.tables:
+      for row in table.rows:
+          for cell in row.cells:
+            for p in cell.paragraphs:
+              for run in p.runs:
+                if old_word in run.text:
+                 run.text = run.text.replace(old_word, new_word)
+
+  # 替换页眉
+  for p in doc.sections[0].header.paragraphs:
+    for run in p.runs:
+      print(run.text)
+      if old_word in run.text:
+        run.text = run.text.replace(old_word, new_word)
+
+  # 替换页脚
+  for p in doc.sections[0].footer.paragraphs:
+    for run in p.runs:
+      if old_word in run.text:
+        run.text = run.text.replace(old_word, new_word)
+
+  doc.save(file)
 
 class MainWindow (QMainWindow):
   
@@ -22,63 +71,48 @@ class MainWindow (QMainWindow):
     self._banding()
  
   def _banding(self):
-    self.ui.chooseFolder.clicked.connect(self.chooseFolder)
+    self.ui.choosePath.clicked.connect(self.choosePath)
     self.ui.start.clicked.connect(self.start)
 
-  def chooseFolder(self):
-    folder_name = QtWidgets.QFileDialog.getExistingDirectory(self, "选择文件夹","../")
-    self.ui.folderName.setText(folder_name)
+  def choosePath(self):
+    path_name = QtWidgets.QFileDialog.getExistingDirectory(self, "选择文件夹","../")
+    self.ui.pathName.setText(path_name)
     
   def start(self):
 
     self.ui.start.setText('执行中....')
     self.ui.start.setEnabled(False)
 
-    oldName = self.ui.oldName.text()
-    newName = self.ui.newName.text()
+    path_name = self.ui.pathName.text()
+
+    old_name = self.ui.oldName.text()
+    new_name = self.ui.newName.text()
 
     old_word = self.ui.oldWord.text()
     new_word = self.ui.newWord.text()
 
-    if folder_name is None:
+    if path_name == '':
 
       log_html = '请选择文件夹'
       self.ui.showLog.setHtml(log_html)
 
     else:
 
-      log_html = '开始执行 <br>'
+      log_html = '开始执行 <br>' + path_name + '<br>'
       self.ui.showLog.setHtml(log_html)
 
-      for root, dirs, files in os.walk(folder_name):
-        for file in files:
+      file_list = []
+      scan_path(path_name,file_list)
 
-          file_name = os.path.join(root, file)
-          ext = os.path.splitext(file_name)[-1]
-          
-          if (ext == '.docx'):
+      for file in file_list:
 
-            log_html = log_html + '文件夹 ' + folder_name + '<br>'
-            self.ui.showLog.setHtml(log_html)
+        log_html = log_html + file + '<br>'
+        self.ui.showLog.setHtml(log_html)
 
-            doc = Document(file_name)
+        replace_word(file,old_word,new_word)
 
-            # 执行替换函数
-            for paragraph in doc.paragraphs:  # 遍历文档段落
-              for run in paragraph.runs:  # 遍历段落的字块
-                print(run.text)
-                run.text = run.text.replace(old_word, new_word)  # 替换字块的文字，然后赋值给字块
-
-            # 遍历文档的表格， 替换表格里的要替换的文字
-            for table in doc.tables:
-                for row in table.rows:
-                    for cell in row.cells:
-                        cell.text = cell.text.replace(old_word, new_word)
-
-            doc.save(file_name)
-
-      log_html = log_html + '执行完成'
-      self.ui.showLog.setHtml(log_html)
+    log_html = log_html + '执行完成'
+    self.ui.showLog.setHtml(log_html)
 
     self.ui.start.setText('开始')
     self.ui.start.setEnabled(True)
